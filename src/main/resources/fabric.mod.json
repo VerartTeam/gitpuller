@@ -14,7 +14,7 @@
   "environment": "server",
   "entrypoints": {
     "main": [
-      "GitPuller"
+      "dev.neylz.gitpuller.GitPuller"
     ]
   },
   "depends": {
