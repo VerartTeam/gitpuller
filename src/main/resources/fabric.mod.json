@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "gitpuller",
+  "version": "${version}",
+  "name": "GitPuller",
+  "description": "Permits to use git  commands in game to control datapacks versioning",
+  "authors": [
+    "Neylz"
+  ],
+  "contact": {
+    "website": "neylz.dev"
+  },
+  "license": "Apache-2.0",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "GitPuller"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
