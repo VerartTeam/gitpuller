@@ -26,6 +26,8 @@ dependencies {
 
         // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    include(implementation 'org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r')
     }
 
 processResources {

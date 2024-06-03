@@ -5,6 +5,8 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class ModRegisteries {
     public static void registerAll() {
+        ModConfig.register();
+
         registerCommands();
     }
 
@@ -16,6 +18,7 @@ public class ModRegisteries {
         CommandRegistrationCallback.EVENT.register(GitInfoCommand::register);
         CommandRegistrationCallback.EVENT.register(GitPullCommand::register);
         CommandRegistrationCallback.EVENT.register(GitRemoteCommand::register);
+        CommandRegistrationCallback.EVENT.register(GitTokenCommand::register);
 
     }
 }
