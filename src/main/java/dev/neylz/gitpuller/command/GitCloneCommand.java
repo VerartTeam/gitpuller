@@ -29,13 +29,11 @@ public class GitCloneCommand {
         dispatcher.register(
             CommandManager.literal("git").then((
                 CommandManager.literal("clone").requires((source) -> source.hasPermissionLevel(2))).then((
-                    CommandManager.literal("datapack")).then((
-                        CommandManager.argument("name", StringArgumentType.string())).then((
-                            CommandManager.argument("url", StringArgumentType.greedyString()).executes((context) -> {
-                                return cloneDatapack(context, StringArgumentType.getString(context, "name"), StringArgumentType.getString(context, "url"));
-                            })
-                        ))
-                    )
+                    CommandManager.argument("name", StringArgumentType.string())).then((
+                        CommandManager.argument("url", StringArgumentType.greedyString()).executes((context) -> {
+                            return cloneDatapack(context, StringArgumentType.getString(context, "name"), StringArgumentType.getString(context, "url"));
+                        })
+                    ))
                 )
             )
 

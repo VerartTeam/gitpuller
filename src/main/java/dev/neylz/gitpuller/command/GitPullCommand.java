@@ -14,9 +14,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.WorldSavePath;
-import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -26,11 +24,11 @@ import java.io.IOException;
 public class GitPullCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("git")
-                .then(CommandManager.literal("pull").requires((source) -> source.hasPermissionLevel(2)).then(CommandManager.literal("datapack").then(CommandManager.argument("pack name", StringArgumentType.word()).suggests((ctx, builder) -> {
+                .then(CommandManager.literal("pull").requires((source) -> source.hasPermissionLevel(2)).then(CommandManager.argument("pack name", StringArgumentType.word()).suggests((ctx, builder) -> {
                     return CommandSource.suggestMatching(GitUtil.getTrackedDatapacks(ctx.getSource().getServer().getSavePath(WorldSavePath.DATAPACKS).toFile()), builder);
                 }).executes((ctx) -> {
                     return pullPack(ctx, StringArgumentType.getString(ctx, "pack name"));
-                }))))
+                })))
         );
     }
 

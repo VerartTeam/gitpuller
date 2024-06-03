@@ -19,9 +19,9 @@ import java.text.Normalizer;
 public class GitInfoCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("git")
-            .then(CommandManager.literal("info").then(CommandManager.literal("datapack")
+            .then(CommandManager.literal("info")
                 .executes(GitInfoCommand::datapackInfo)
-            ))
+            )
         );
     }
 
