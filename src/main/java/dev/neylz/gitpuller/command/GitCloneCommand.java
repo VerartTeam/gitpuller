@@ -1,7 +1,6 @@
 package dev.neylz.gitpuller.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -29,9 +28,8 @@ public class GitCloneCommand {
             CommandManager.literal("git").then((
                 CommandManager.literal("clone").requires((source) -> source.hasPermissionLevel(2))).then((
                     CommandManager.argument("name", StringArgumentType.string())).then((
-                        CommandManager.argument("url", StringArgumentType.greedyString()).executes((context) -> {
-                            return cloneDatapack(context, StringArgumentType.getString(context, "name"), StringArgumentType.getString(context, "url"));
-                        })
+                        CommandManager.argument("url", StringArgumentType.greedyString()).executes(
+                            (context) -> cloneDatapack(context, StringArgumentType.getString(context, "name"), StringArgumentType.getString(context, "url")))
                     ))
                 )
             )
