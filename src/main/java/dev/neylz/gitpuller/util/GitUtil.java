@@ -2,12 +2,16 @@ package dev.neylz.gitpuller.util;
 
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class GitUtil {
 
@@ -53,4 +57,31 @@ public class GitUtil {
             return false;
         }
     }
+
+
+    @NotNull
+    public static List<String> getBranches(File file) {
+        if (!file.exists()) return List.of();
+
+        try (Git git = Git.open(file)) {
+            return git.branchList().call().stream().map(Ref::getName).toList();
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
+    @NotNull
+    public static List<String> getTrackedDatapacks(File parentFolder) {
+        if (!parentFolder.exists()) return List.of();
+
+        File[] files = parentFolder.listFiles();
+        if (files == null) return List.of();
+
+        return Stream.of(files).filter(File::isDirectory).filter(GitUtil::isGitRepo).map(File::getName).toList();
+    }
+
+
+
+
 }
