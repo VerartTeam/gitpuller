@@ -95,7 +95,7 @@ public class GitCloneCommand {
             throw new CommandSyntaxException(null, new Message() {
                 @Override
                 public String getString() {
-                    return "Datapack " + name + " already exists";
+                    return "Datapack \"" + name + "\" already exists";
                 }
             });
         }
