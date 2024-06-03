@@ -14,7 +14,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.WorldSavePath;
 
 import java.io.File;
-import java.text.Normalizer;
 
 public class GitInfoCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {

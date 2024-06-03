@@ -5,7 +5,6 @@ import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.neylz.gitpuller.util.GitUtil;
 import dev.neylz.gitpuller.util.TokenManager;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
@@ -42,39 +41,29 @@ public class GitCloneCommand {
 
     private static int cloneDatapack(CommandContext<ServerCommandSource> ctx, String name, String remoteUrl) throws CommandSyntaxException {
         if (!URL_PATTERN.matcher(remoteUrl).matches()) {
-            throw new CommandSyntaxException(null, new Message() {
-                @Override
-                public String getString() {
-                    return "Invalid URL: " + remoteUrl;
-                }
-            });
+            throw new CommandSyntaxException(null, () -> "Invalid URL: " + remoteUrl);
         }
 
 
-        ctx.getSource().sendFeedback(() -> {
-            return Text.empty()
-                    .append(Text.literal("Cloning from ").formatted(Formatting.RESET))
-                    .append(Text.literal(remoteUrl).formatted(Formatting.AQUA))
-                    .append(Text.literal(" into the datapack ").formatted(Formatting.RESET))
-                    .append(Text.literal("[" + name + "]").formatted(Formatting.YELLOW));
-        }, true);
+        ctx.getSource().sendFeedback(() -> Text.empty()
+                .append(Text.literal("Cloning from ").formatted(Formatting.RESET))
+                .append(Text.literal(remoteUrl).formatted(Formatting.AQUA))
+                .append(Text.literal(" into the datapack ").formatted(Formatting.RESET))
+                .append(Text.literal("[" + name + "]").formatted(Formatting.YELLOW)),
+            true);
 
         MinecraftServer server = ctx.getSource().getServer();
         try {
             clone(server, remoteUrl, name);
         } catch (CommandSyntaxException e) {
-            ctx.getSource().sendFeedback(() -> {
-                return Text.empty()
-                        .append(Text.literal("Failed to clone repository: ").formatted(Formatting.RED))
-                        .append(Text.literal(e.getMessage()).formatted(Formatting.RED));
-            }, true);
+            ctx.getSource().sendFeedback(() -> Text.empty()
+                    .append(Text.literal("Failed to clone repository: ").formatted(Formatting.RED))
+                    .append(Text.literal(e.getMessage()).formatted(Formatting.RED)), true);
             return 0;
         }
 
-        ctx.getSource().sendFeedback(() -> {
-            return Text.empty()
-                    .append(Text.literal("Successfully cloned repository").formatted(Formatting.GREEN));
-        }, true);
+        ctx.getSource().sendFeedback(() -> Text.empty()
+                .append(Text.literal("Successfully cloned repository").formatted(Formatting.GREEN)), true);
 
 
         return 1;
@@ -91,12 +80,7 @@ public class GitCloneCommand {
         File datapackDir = new File(worldDir.toFile(), name);
 
         if (datapackDir.exists()) {
-            throw new CommandSyntaxException(null, new Message() {
-                @Override
-                public String getString() {
-                    return "Datapack \"" + name + "\" already exists";
-                }
-            });
+            throw new CommandSyntaxException(null, () -> "Datapack \"" + name + "\" already exists");
         }
 
 
@@ -109,12 +93,7 @@ public class GitCloneCommand {
                     .call();
         } catch (GitAPIException e) {
             e.printStackTrace();
-            throw new CommandSyntaxException(null, new Message() {
-                @Override
-                public String getString() {
-                    return "Failed to clone repository: " + e.getMessage();
-                }
-            });
+            throw new CommandSyntaxException(null, () -> "Failed to clone repository: " + e.getMessage());
         }
 
 

@@ -5,7 +5,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -51,7 +50,7 @@ public class GitUtil {
     public static boolean isGitRepo(File file) {
         if (!file.exists()) return false;
 
-        try (Git git = Git.open(file)) {
+        try (Git ignored = Git.open(file)) {
             return true;
         } catch (IOException e) {
             return false;

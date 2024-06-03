@@ -24,11 +24,10 @@ import java.io.IOException;
 public class GitPullCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("git")
-                .then(CommandManager.literal("pull").requires((source) -> source.hasPermissionLevel(2)).then(CommandManager.argument("pack name", StringArgumentType.word()).suggests((ctx, builder) -> {
-                    return CommandSource.suggestMatching(GitUtil.getTrackedDatapacks(ctx.getSource().getServer().getSavePath(WorldSavePath.DATAPACKS).toFile()), builder);
-                }).executes((ctx) -> {
-                    return pullPack(ctx, StringArgumentType.getString(ctx, "pack name"));
-                })))
+                .then(CommandManager.literal("pull").requires((source) -> source.hasPermissionLevel(2)).then(CommandManager.argument("pack name", StringArgumentType.word()).suggests(
+                        (ctx, builder) -> CommandSource.suggestMatching(GitUtil.getTrackedDatapacks(ctx.getSource().getServer().getSavePath(WorldSavePath.DATAPACKS).toFile()), builder))
+                        .executes((ctx) -> pullPack(ctx, StringArgumentType.getString(ctx, "pack name")))
+                ))
         );
     }
 
@@ -38,41 +37,22 @@ public class GitPullCommand {
         File file = new File(ctx.getSource().getServer().getSavePath(WorldSavePath.DATAPACKS).toFile(), packName);
 
         if (!file.exists()) {
-            throw new CommandSyntaxException(null, new Message() {
-                @Override
-                public String getString() {
-                    return "Datapack " + packName + " does not exist";
-                }
-            });
+            throw new CommandSyntaxException(null, () -> "Datapack " + packName + " does not exist");
         } else if (!GitUtil.isGitRepo(file)) {
-            throw new CommandSyntaxException(null, new Message() {
-                @Override
-                public String getString() {
-                    return "Datapack " + packName + " is not a git repository";
-                }
-            });
+            throw new CommandSyntaxException(null, () -> "Datapack " + packName + " is not a git repository");
         }
 
         // git pull -f --all
         String sha1 = GitUtil.getCurrentHeadSha1(file, 7);
         if (!gitPull(file)) {
-            throw new CommandSyntaxException(null, new Message() {
-                @Override
-                public String getString() {
-                    return "Failed to pull changes from " + packName;
-                }
-            });
+            throw new CommandSyntaxException(null, () -> "Failed to pull changes from " + packName);
         }
 
         String newSha1 = GitUtil.getCurrentHeadSha1(file, 7);
         if (sha1.equals(newSha1)) {
-            ctx.getSource().sendFeedback(() -> {
-                return Text.of("No new changes pulled from " + packName);
-            }, true);
+            ctx.getSource().sendFeedback(() -> Text.of("No new changes pulled from " + packName), true);
         } else {
-            ctx.getSource().sendFeedback(() -> {
-                return Text.of("Pulled changes from " + packName + " (" + sha1 + " -> " + newSha1 + ")");
-            }, true);
+            ctx.getSource().sendFeedback(() -> Text.of("Pulled changes from " + packName + " (" + sha1 + " -> " + newSha1 + ")"), true);
         }
 
 
