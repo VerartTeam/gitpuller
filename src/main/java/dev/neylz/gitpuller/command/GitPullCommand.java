@@ -74,9 +74,6 @@ public class GitPullCommand {
         try {
             Git git = Git.open(repoDir);
 
-            String branchName = git.getRepository().getBranch();
-//            boolean isBranch = GitUtil.getBranches(repoDir).contains(branchName) || branchName.equals("HEAD") || GitUtil.getBranches(repoDir).contains(branchName);
-
             git.fetch()
                     .setRemoveDeletedRefs(true)
                     .setCredentialsProvider(new UsernamePasswordCredentialsProvider(TokenManager.getInstance().getToken(), ""))
@@ -95,29 +92,10 @@ public class GitPullCommand {
             );
 
 
-//            if (!isBranch) {
-//                sender.sendFeedback(
-//                        () -> Text.empty()
-//                                .append(Text.literal("Did not checkout onto last commit of the branch, as you are currently viewing an old commit.\n").formatted(Formatting.RED))
-//                                .append(Text.literal("To checkout onto the last commit of the branch, use ").formatted(Formatting.GRAY))
-//                                .append(Text.literal("/git checkout " + repoDir.getName() + " " + branchName).formatted(Formatting.YELLOW)),
-//                        true
-//                );
-//
-//                return true;
-//            }
-//            else {
-//                git.checkout()
-//                        .setForceRefUpdate(true)
-//                        .setName(branchName)
-//                        .call();
-//            }
-
-
             return true;
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
-            return false;
+            throw new CommandSyntaxException(null, () -> "Failed to pull changes from remote repository: " + e.getMessage());
         }
     }
 }

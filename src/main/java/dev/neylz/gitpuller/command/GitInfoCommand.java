@@ -24,7 +24,7 @@ public class GitInfoCommand {
         );
     }
 
-    private static int datapackInfo(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int datapackInfo(CommandContext<ServerCommandSource> ctx) {
         MinecraftServer server = ctx.getSource().getServer();
 
         File file = server.getSavePath(WorldSavePath.DATAPACKS).toFile();
