@@ -1,7 +1,6 @@
 package dev.neylz.gitpuller.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,6 +12,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.WorldSavePath;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -44,15 +44,23 @@ public class GitPullCommand {
 
         // git pull -f --all
         String sha1 = GitUtil.getCurrentHeadSha1(file, 7);
-        if (!gitPull(file)) {
+        if (!gitPull(ctx.getSource(), file)) {
             throw new CommandSyntaxException(null, () -> "Failed to pull changes from " + packName);
         }
 
         String newSha1 = GitUtil.getCurrentHeadSha1(file, 7);
-        if (sha1.equals(newSha1)) {
-            ctx.getSource().sendFeedback(() -> Text.of("No new changes pulled from " + packName), true);
-        } else {
-            ctx.getSource().sendFeedback(() -> Text.of("Pulled changes from " + packName + " (" + sha1 + " -> " + newSha1 + ")"), true);
+        if (!sha1.equals(newSha1)) {
+            ctx.getSource().sendFeedback(
+                () -> Text.empty()
+                        .append(Text.literal("Pulled changes from ").formatted(Formatting.RESET))
+                        .append(Text.literal("[" + packName + "]").formatted(Formatting.YELLOW))
+                        .append(Text.literal(" (").formatted(Formatting.RESET))
+                        .append(Text.literal(sha1).formatted(Formatting.AQUA))
+                        .append(Text.literal(" -> ").formatted(Formatting.RESET))
+                        .append(Text.literal(newSha1).formatted(Formatting.LIGHT_PURPLE))
+                        .append(Text.literal(")").formatted(Formatting.RESET)),
+                true
+            );
         }
 
 
@@ -62,12 +70,12 @@ public class GitPullCommand {
 
 
 
-    private static boolean gitPull(File repoDir) {
+    private static boolean gitPull(ServerCommandSource sender, File repoDir) throws CommandSyntaxException {
         try {
             Git git = Git.open(repoDir);
 
             String branchName = git.getRepository().getBranch();
-            boolean isBranch = GitUtil.getBranches(repoDir).contains(branchName);
+//            boolean isBranch = GitUtil.getBranches(repoDir).contains(branchName) || branchName.equals("HEAD") || GitUtil.getBranches(repoDir).contains(branchName);
 
             git.fetch()
                     .setRemoveDeletedRefs(true)
@@ -80,26 +88,31 @@ public class GitPullCommand {
                     .call();
 
             GitPuller.LOGGER.info("Fetched changes from remote repository");
-            GitPuller.LOGGER.info(git.getRepository().getBranch());
+            sender.sendFeedback(
+                    () -> Text.empty()
+                            .append("Fetched changes from remote repository").formatted(Formatting.GREEN),
+                    true
+            );
 
-            if (!isBranch) {
-                GitPuller.LOGGER.info("Fetched all changes, didn't checkout branch");
-                return true;
-            } else {
-                git.checkout()
-                        .setForceRefUpdate(true)
-                        .setName(branchName)
-                        .call();
 
-                GitPuller.LOGGER.info("Checked out branch " + git.getRepository().getBranch());
-            }
+//            if (!isBranch) {
+//                sender.sendFeedback(
+//                        () -> Text.empty()
+//                                .append(Text.literal("Did not checkout onto last commit of the branch, as you are currently viewing an old commit.\n").formatted(Formatting.RED))
+//                                .append(Text.literal("To checkout onto the last commit of the branch, use ").formatted(Formatting.GRAY))
+//                                .append(Text.literal("/git checkout " + repoDir.getName() + " " + branchName).formatted(Formatting.YELLOW)),
+//                        true
+//                );
+//
+//                return true;
+//            }
+//            else {
+//                git.checkout()
+//                        .setForceRefUpdate(true)
+//                        .setName(branchName)
+//                        .call();
+//            }
 
-//            git.reset()
-//                    .setMode(ResetCommand.ResetType.HARD)
-//                    .setRef("refs/heads/" + git.getRepository().getBranch())
-//                    .call();
-
-            GitPuller.LOGGER.info("Reset local repository to remote HEAD");
 
             return true;
         } catch (IOException | GitAPIException e) {
